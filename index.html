@@ -1,0 +1,827 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Belajar Himpunan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: rel menu gelap di kiri, konten di kanan. Materi = teks beranimasi + panggung diagram Venn yang berubah bentuk (morph) tiap halaman. */
+:root{
+  --bg:#eef2f9; --panel:#ffffff; --ink:#12203a; --muted:#566380; --line:#d5ddec;
+  --side:#14203f; --side-ink:#c6d2ee; --side-on:#ffffff;
+  --a:#2563eb; --b:#e0791a; --hl:#0fa57a; --ok:#14804f; --bad:#c62f2f;
+  --soft:#e8eefb; --warn:#a15c00;
+  --f-display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --rail:220px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0b1224; --panel:#131c35; --ink:#e8eefc; --muted:#9dabc9; --line:#25324f;
+  --side:#080d1b; --side-ink:#9fb0d6; --a:#6c9bff; --b:#f2a350; --hl:#34d399; --ok:#3ecf8e; --bad:#ff7b7b; --soft:#1a2745; --warn:#f2b155; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0b1224; --panel:#131c35; --ink:#e8eefc; --muted:#9dabc9; --line:#25324f;
+  --side:#080d1b; --side-ink:#9fb0d6; --a:#6c9bff; --b:#f2a350; --hl:#34d399; --ok:#3ecf8e; --bad:#ff7b7b; --soft:#1a2745; --warn:#f2b155; color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--f-body);overflow-x:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0 0 .8em}
+sup,sub{line-height:0}
+:focus-visible{outline:3px solid var(--a);outline-offset:2px;border-radius:6px}
+
+.app{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);height:100%}
+.rail{background:var(--side);color:var(--side-ink);display:flex;flex-direction:column;gap:6px;padding:18px 12px;padding-left:max(12px,env(safe-area-inset-left,0px));overflow-y:auto}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 16px;color:var(--side-on)}
+.brand svg{flex:none}
+.brand b{font:800 19px/1 var(--f-display);letter-spacing:-.01em}
+.brand small{display:block;font:500 11px/1.3 var(--f-body);color:var(--side-ink);letter-spacing:.08em;text-transform:uppercase;margin-top:3px}
+.nav{display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;border:0;border-radius:12px;background:transparent;color:var(--side-ink);cursor:pointer;text-align:left;font-weight:600;transition:background .2s,color .2s}
+.nav:hover{background:rgba(255,255,255,.07);color:var(--side-on)}
+.nav[aria-current="page"]{background:var(--a);color:#fff}
+:root[data-theme="dark"] .nav[aria-current="page"]{color:#06122b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .nav[aria-current="page"]{color:#06122b}}
+.nav svg{flex:none}
+.rail-foot{margin-top:auto;padding:10px;font-size:12px;color:var(--side-ink);opacity:.8}
+
+main{min-width:0;overflow-y:auto;padding-block:clamp(16px,3vw,32px);padding-left:clamp(16px,3vw,36px);padding-right:max(clamp(16px,3vw,36px),env(safe-area-inset-right,0px))}
+.view{max-width:1120px;margin:0 auto}
+.view>header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.kicker{font:700 12px/1 var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--a);margin-bottom:8px}
+.view h1{font-size:clamp(26px,4vw,38px);font-weight:800;letter-spacing:-.02em}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:clamp(16px,2.4vw,28px)}
+
+/* ===== Materi ===== */
+.m-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:18px;align-items:start}
+.slide{min-height:420px;display:flex;flex-direction:column}
+.slide h2{font-size:clamp(24px,3.2vw,32px);font-weight:800;margin-bottom:14px}
+.slide .tag{font:700 12px/1 var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+#slideBody{flex:1;transition:opacity .18s,transform .18s}
+#slideBody.out{opacity:0;transform:translateX(-14px)}
+.w{display:inline-block;opacity:0;animation:wordIn .55s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes wordIn{from{opacity:0;transform:translateY(10px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+.box{border-radius:14px;padding:12px 16px;margin:12px 0;background:var(--soft);border:1px solid var(--line)}
+.box.def{border-left:5px solid var(--a)}
+.box.ex{border-left:5px solid var(--b)}
+.box.key{border-left:5px solid var(--hl)}
+.box b.lbl{display:block;font:700 12px/1 var(--f-body);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;color:var(--muted)}
+.box p:last-child{margin-bottom:0}
+.math{font-family:"Cambria Math","STIX Two Math",Georgia,serif;font-size:1.08em}
+.cols2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.cols2>div{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.cols2 b{display:block;margin-bottom:2px}
+.tblwrap{overflow-x:auto;margin:10px 0}
+table.t{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+table.t th,table.t td{border:1px solid var(--line);padding:6px 12px;text-align:center}
+table.t th{background:var(--soft)}
+.slide-nav{display:flex;align-items:center;gap:12px;margin-top:22px;flex-wrap:wrap}
+.btn{border:0;border-radius:12px;padding:11px 20px;font-weight:700;cursor:pointer;background:var(--a);color:#fff;transition:transform .15s,opacity .2s,filter .2s}
+:root[data-theme="dark"] .btn{color:#06122b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{color:#06122b}}
+.btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.08)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+:root[data-theme="dark"] .btn.ghost{color:var(--ink)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.ghost{color:var(--ink)}}
+.btn.ok{background:var(--ok)}
+.dots{display:flex;gap:6px;flex:1;justify-content:center;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:99px;border:0;padding:0;background:var(--line);cursor:pointer;transition:width .3s,background .3s}
+.dot[aria-current="true"]{width:26px;background:var(--a)}
+.count{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:600;min-width:64px;text-align:right}
+
+.stage-card{padding:14px;position:sticky;top:0}
+.stage{width:100%;height:auto;display:block;max-height:60vh}
+.stage text{font-family:"Cambria Math","STIX Two Math",Georgia,serif}
+.cap{margin-top:6px;text-align:center;font:600 15px/1.4 var(--f-body);min-height:44px}
+.geo{transition:cx .9s cubic-bezier(.6,0,.2,1),cy .9s cubic-bezier(.6,0,.2,1),r .9s cubic-bezier(.6,0,.2,1),opacity .5s}
+.hl{transition:cx .9s cubic-bezier(.6,0,.2,1),cy .9s cubic-bezier(.6,0,.2,1),r .9s cubic-bezier(.6,0,.2,1),opacity .6s;opacity:0;fill:var(--hl)}
+.hl.show{opacity:.5}
+.mem{font-size:17px;font-weight:700;text-anchor:middle;dominant-baseline:central;fill:var(--ink);transition:transform .9s cubic-bezier(.6,0,.2,1),opacity .6s,fill .4s}
+.mem.dim{opacity:.4}
+.lab{font-size:20px;font-style:italic;font-weight:700;transition:transform .9s cubic-bezier(.6,0,.2,1),opacity .6s}
+
+/* ===== Simulasi ===== */
+.tabs{display:flex;gap:6px;background:var(--soft);padding:5px;border-radius:14px;width:max-content;max-width:100%;margin-bottom:16px}
+.tab{border:0;background:transparent;padding:8px 16px;border-radius:10px;font-weight:700;cursor:pointer;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.s-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.chip{min-width:56px;border:2px solid var(--line);background:var(--panel);border-radius:12px;padding:6px 10px;cursor:pointer;font-weight:700;font-variant-numeric:tabular-nums;display:grid;gap:0;text-align:center;line-height:1.2}
+.chip small{font-size:11px;color:var(--muted);font-weight:600}
+.chip[data-r="a"]{border-color:var(--a);background:color-mix(in srgb,var(--a) 14%,var(--panel))}
+.chip[data-r="b"]{border-color:var(--b);background:color-mix(in srgb,var(--b) 16%,var(--panel))}
+.chip[data-r="ab"]{border-color:var(--hl);background:color-mix(in srgb,var(--hl) 18%,var(--panel))}
+.ops{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}
+.op{border:1.5px solid var(--line);background:var(--panel);border-radius:10px;padding:7px 12px;font-weight:700;cursor:pointer;font-family:"Cambria Math","STIX Two Math",Georgia,serif}
+.op[aria-pressed="true"]{background:var(--a);border-color:var(--a);color:#fff}
+:root[data-theme="dark"] .op[aria-pressed="true"]{color:#06122b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .op[aria-pressed="true"]{color:#06122b}}
+.result{background:var(--soft);border-radius:14px;padding:14px 16px;border:1px solid var(--line)}
+.result .big{font:700 22px/1.4 "Cambria Math","STIX Two Math",Georgia,serif;overflow-wrap:anywhere}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-bottom:6px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:5px;vertical-align:-1px}
+.letters{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.letter{width:48px;height:48px;border-radius:14px;border:2px solid var(--line);background:var(--panel);font:700 20px var(--f-display);cursor:pointer}
+.letter[aria-pressed="true"]{background:var(--a);color:#fff;border-color:var(--a)}
+:root[data-theme="dark"] .letter[aria-pressed="true"]{color:#06122b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .letter[aria-pressed="true"]{color:#06122b}}
+.sub-groups{display:grid;gap:10px}
+.sub-g{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;align-items:start}
+.sub-g>b{font-size:13px;color:var(--muted);padding-top:6px}
+.sub-list{display:flex;flex-wrap:wrap;gap:6px}
+.sub{padding:3px 10px;border-radius:99px;background:var(--soft);border:1px solid var(--line);font-family:"Cambria Math","STIX Two Math",Georgia,serif;animation:pop .35s cubic-bezier(.2,.8,.2,1) both}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.formula{font:800 clamp(30px,5vw,46px)/1.1 var(--f-display);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+
+/* ===== Evaluasi ===== */
+.field{display:grid;gap:6px;margin-bottom:14px}
+.field label{font-weight:700;font-size:14px}
+.input{width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);font-size:16px}
+.input:focus{border-color:var(--a);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--a) 30%,transparent)}
+.info-list{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 18px;padding:0;list-style:none}
+.info-list li{background:var(--soft);border-radius:10px;padding:6px 12px;font-weight:600;font-size:14px}
+.err{color:var(--bad);font-weight:600;min-height:1.4em;margin:0 0 8px}
+.q-top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
+.who{font-weight:700}
+.who small{display:block;color:var(--muted);font-weight:500}
+.timer{font:800 26px/1 var(--f-display);font-variant-numeric:tabular-nums;padding:10px 16px;border-radius:12px;background:var(--soft)}
+.timer.low{background:color-mix(in srgb,var(--bad) 18%,var(--panel));color:var(--bad);animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.6}}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin-bottom:18px}
+.bar i{display:block;height:100%;background:var(--a);width:0;transition:width .3s}
+.qno{font:700 13px/1 var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--a);margin-bottom:8px}
+.qtext{font:700 clamp(18px,2.4vw,22px)/1.4 var(--f-body);margin-bottom:16px;overflow-wrap:anywhere}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;padding:12px 14px;border:2px solid var(--line);background:var(--panel);border-radius:14px;cursor:pointer;transition:border-color .15s,background .15s}
+.opt:hover{border-color:var(--a)}
+.opt .l{flex:none;width:30px;height:30px;border-radius:9px;background:var(--soft);display:grid;place-items:center;font-weight:800}
+.opt[aria-checked="true"]{border-color:var(--a);background:color-mix(in srgb,var(--a) 12%,var(--panel))}
+.opt[aria-checked="true"] .l{background:var(--a);color:#fff}
+:root[data-theme="dark"] .opt[aria-checked="true"] .l{color:#06122b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .opt[aria-checked="true"] .l{color:#06122b}}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,var(--panel))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--panel))}
+.grid20{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px;margin:18px 0 6px}
+.gq{aspect-ratio:1;border-radius:9px;border:1.5px solid var(--line);background:var(--panel);font-weight:700;font-size:13px;cursor:pointer;font-variant-numeric:tabular-nums;padding:0}
+.gq.done{background:color-mix(in srgb,var(--a) 20%,var(--panel));border-color:var(--a)}
+.gq.cur{outline:3px solid var(--b);outline-offset:1px}
+.q-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px}
+.q-actions .sp{flex:1}
+.confirm{background:color-mix(in srgb,var(--b) 16%,var(--panel));border:1px solid var(--b);border-radius:12px;padding:12px 16px;margin-top:14px}
+.score{display:grid;place-items:center;text-align:center;padding:10px 0 18px}
+.score .n{font:800 clamp(64px,12vw,110px)/1 var(--f-display);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.score .n.good{color:var(--ok)} .score .n.mid{color:var(--warn)} .score .n.low{color:var(--bad)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:18px}
+.stats div{background:var(--soft);border-radius:12px;padding:10px 14px}
+.stats b{display:block;font:800 22px var(--f-display);font-variant-numeric:tabular-nums}
+.stats span{font-size:13px;color:var(--muted)}
+.mail{margin-top:16px}
+.mail textarea{width:100%;min-height:150px;resize:vertical;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:12px}
+.addr{font-weight:700;user-select:all;background:var(--soft);padding:2px 8px;border-radius:8px;overflow-wrap:anywhere}
+.note{font-size:14px;color:var(--muted)}
+.rv{border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+.rv .st{font-weight:800;font-size:13px}
+.rv .st.ok{color:var(--ok)} .rv .st.no{color:var(--bad)}
+.rv p{margin:.3em 0}
+.rekap{overflow-x:auto;margin-top:12px}
+
+/* ===== Pengembang ===== */
+.dev-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.avatar{width:84px;height:84px;border-radius:50%;background:conic-gradient(from 200deg,var(--a),var(--hl),var(--b),var(--a));display:grid;place-items:center;margin-bottom:14px}
+.avatar span{width:72px;height:72px;border-radius:50%;background:var(--panel);display:grid;place-items:center;font:800 26px var(--f-display)}
+.dev-grid h3{font-size:20px;margin-bottom:10px}
+.dev-grid ul{margin:0;padding-left:20px;display:grid;gap:4px}
+dl.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:6px 12px;margin:0}
+dl.kv dt{color:var(--muted);font-weight:600}
+dl.kv dd{margin:0;overflow-wrap:anywhere}
+.ph{border-bottom:2px dashed var(--b);padding:0 4px}
+
+/* ===== Responsif ===== */
+@media (max-width:900px){
+  .m-grid,.s-grid,.dev-grid{grid-template-columns:minmax(0,1fr)}
+  .stage-card{position:static;order:-1}
+  .stage{max-height:250px}
+  .slide{min-height:0}
+}
+@media (max-width:640px){
+  :root{--rail:64px}
+  .brand div,.nav span,.rail-foot{display:none}
+  .brand{justify-content:center;padding:4px 0 12px}
+  .rail{padding-inline:8px;padding-left:max(8px,env(safe-area-inset-left,0px))}
+  .nav{justify-content:center;padding:12px 0}
+  .grid20{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .cols2{grid-template-columns:minmax(0,1fr)}
+  .sub-g{grid-template-columns:minmax(0,1fr)}
+  dl.kv{grid-template-columns:minmax(0,1fr)}
+  .count{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .w{animation-duration:.01s;animation-delay:0s !important}
+  .geo,.hl,.mem,.lab{transition-duration:.01s}
+  .timer.low{animation:none}
+}
+</style>
+
+<div class="app">
+  <nav class="rail" aria-label="Menu utama">
+    <div class="brand">
+      <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><circle cx="14" cy="18" r="11" fill="none" stroke="#6c9bff" stroke-width="3"/><circle cx="22" cy="18" r="11" fill="none" stroke="#f2a350" stroke-width="3"/><path d="M18 9.2a11 11 0 0 1 0 17.6a11 11 0 0 1 0-17.6z" fill="#34d399" opacity=".85"/></svg>
+      <div><b>Himpunan</b><small>Matematika SMP</small></div>
+    </div>
+    <button class="nav" data-view="materi" aria-label="Materi"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 8h6"/></svg><span>Materi</span></button>
+    <button class="nav" data-view="simulasi" aria-label="Simulasi"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/></svg><span>Simulasi</span></button>
+    <button class="nav" data-view="evaluasi" aria-label="Evaluasi"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="m8 9 2 2 3-4M8 16h8"/></svg><span>Evaluasi</span></button>
+    <button class="nav" data-view="pengembang" aria-label="Pengembang"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Pengembang</span></button>
+    <div class="rail-foot">Gunakan tombol ← → untuk berpindah halaman materi.</div>
+  </nav>
+
+  <main id="main">
+    <!-- MATERI -->
+    <section class="view" id="v-materi" hidden>
+      <header><div><div class="kicker">Materi</div><h1>Himpunan</h1></div></header>
+      <div class="m-grid">
+        <article class="card slide" aria-live="polite">
+          <div class="tag" id="slideTag"></div>
+          <h2 id="slideTitle"></h2>
+          <div id="slideBody"></div>
+          <div class="slide-nav">
+            <button class="btn ghost" id="btnBack">← Kembali</button>
+            <div class="dots" id="dots" role="tablist" aria-label="Halaman materi"></div>
+            <span class="count" id="count"></span>
+            <button class="btn" id="btnNext">Lanjut →</button>
+          </div>
+        </article>
+        <aside class="card stage-card" aria-label="Diagram">
+          <svg id="stageSvg" class="stage" viewBox="0 0 400 280" role="img" aria-label="Diagram Venn yang berubah mengikuti materi"></svg>
+          <div class="cap" id="cap"></div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- SIMULASI -->
+    <section class="view" id="v-simulasi" hidden>
+      <header><div><div class="kicker">Simulasi</div><h1>Coba sendiri</h1></div></header>
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" id="tab-venn" aria-selected="true" data-tab="venn">Diagram Venn</button>
+        <button class="tab" role="tab" id="tab-sub" aria-selected="false" data-tab="sub">Himpunan Bagian</button>
+      </div>
+      <div id="sim-venn" class="s-grid">
+        <div class="card">
+          <h3>Atur anggota himpunan</h3>
+          <p class="note">Ketuk sebuah angka untuk mengubah posisinya: di luar, hanya A, hanya B, atau A dan B sekaligus. Semesta S = {1, 2, …, 10}.</p>
+          <div class="chips" id="chips"></div>
+          <h3>Pilih operasi</h3>
+          <div class="ops" id="ops"></div>
+          <div class="result" aria-live="polite">
+            <div class="big" id="resSet"></div>
+            <div id="resN" class="note" style="margin-top:6px"></div>
+          </div>
+        </div>
+        <div class="card stage-card" style="position:static">
+          <div class="legend"><span><i style="background:var(--a)"></i>Himpunan A</span><span><i style="background:var(--b)"></i>Himpunan B</span><span><i style="background:var(--hl);opacity:.6"></i>Hasil operasi</span></div>
+          <svg id="simSvg" class="stage" viewBox="0 0 400 280" role="img" aria-label="Diagram Venn simulasi"></svg>
+          <div class="cap" id="simCap"></div>
+        </div>
+      </div>
+      <div id="sim-sub" class="s-grid" hidden>
+        <div class="card">
+          <h3>Pilih anggota himpunan P</h3>
+          <p class="note">Ketuk huruf untuk memasukkan atau mengeluarkannya dari P. Lihat bagaimana banyak himpunan bagian berlipat dua setiap ada anggota baru.</p>
+          <div class="letters" id="letters"></div>
+          <div class="result">
+            <div class="big" id="pSet"></div>
+            <div class="note" style="margin-top:8px">Banyak himpunan bagian</div>
+            <div class="formula" id="pFormula"></div>
+            <div class="note" id="pProper" style="margin-top:6px"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Semua himpunan bagian</h3>
+          <div class="sub-groups" id="subGroups"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EVALUASI -->
+    <section class="view" id="v-evaluasi" hidden>
+      <header><div><div class="kicker">Evaluasi</div><h1>Latihan Soal Himpunan</h1></div></header>
+      <div id="ev-form" class="card" style="max-width:640px">
+        <h3 style="margin-bottom:12px">Isi data diri dulu</h3>
+        <ul class="info-list"><li>20 soal pilihan ganda</li><li>Waktu 30 menit</li><li>Skor 5 poin per soal</li></ul>
+        <form id="startForm" novalidate>
+          <div class="field"><label for="nama">Nama lengkap</label><input class="input" id="nama" autocomplete="name" placeholder="Contoh: Siti Aminah" maxlength="60"></div>
+          <div class="field"><label for="kelas">Kelas</label><input class="input" id="kelas" placeholder="Contoh: VII-A" maxlength="20"></div>
+          <p class="err" id="formErr" role="alert"></p>
+          <button class="btn" type="submit">Mulai mengerjakan</button>
+        </form>
+        <p class="note" style="margin-top:14px">Timer berjalan setelah tombol ditekan. Bila waktu habis, jawaban otomatis dikumpulkan.</p>
+      </div>
+
+      <div id="ev-quiz" hidden>
+        <div class="card">
+          <div class="q-top">
+            <div class="who"><span id="whoName"></span><small id="whoClass"></small></div>
+            <div class="timer" id="timer" role="timer" aria-label="Sisa waktu">30:00</div>
+          </div>
+          <div class="bar" aria-hidden="true"><i id="bar"></i></div>
+          <div id="qBox"></div>
+          <div class="q-actions">
+            <button class="btn ghost" id="qPrev">← Sebelumnya</button>
+            <button class="btn" id="qNext">Berikutnya →</button>
+            <span class="sp"></span>
+            <button class="btn ok" id="qFinish">Selesai &amp; kumpulkan</button>
+          </div>
+          <div class="confirm" id="confirmBox" hidden>
+            <p id="confirmMsg" style="margin-bottom:10px"></p>
+            <button class="btn ok" id="confirmYes">Ya, kumpulkan sekarang</button>
+            <button class="btn ghost" id="confirmNo">Lanjut mengerjakan</button>
+          </div>
+          <div class="grid20" id="grid20"></div>
+        </div>
+      </div>
+
+      <div id="ev-result" hidden>
+        <div class="card">
+          <div class="score"><div class="note" id="resWho"></div><div class="n" id="resScore">0</div><div class="note">dari 100</div></div>
+          <div class="stats" id="resStats"></div>
+          <div class="mail">
+            <h3 style="margin-bottom:8px">Kirim nilai ke guru</h3>
+            <p class="note" id="saveStatus"></p>
+            <p>Email guru: <span class="addr" id="teacherMail">dunaalikaplale@gmail.com</span></p>
+            <textarea id="mailText" readonly aria-label="Isi email nilai"></textarea>
+            <div class="q-actions">
+              <a class="btn" id="mailLink" href="#" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block">Kirim lewat email</a>
+              <button class="btn ghost" id="copyMail">Salin isi email</button>
+              <span class="note" id="copyNote"></span>
+            </div>
+            <p class="note" style="margin-top:10px">Tombol email membuka aplikasi email dengan nilai yang sudah terisi. Tekan Kirim di aplikasi email agar guru menerimanya. Jika tidak terbuka, salin isi email lalu kirim manual.</p>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <h3 style="margin-bottom:12px">Pembahasan</h3>
+          <div id="review"></div>
+          <button class="btn ghost" id="retry">Ulangi dari awal</button>
+        </div>
+      </div>
+
+      <div class="card" id="rekapCard" hidden style="margin-top:16px">
+        <h3>Rekap nilai siswa (khusus guru)</h3>
+        <p class="note">Menampilkan hasil siswa yang membuka halaman ini dengan akun. Setiap siswa tersimpan satu hasil terbaru.</p>
+        <div class="rekap" id="rekap"></div>
+      </div>
+    </section>
+
+    <!-- PENGEMBANG -->
+    <section class="view" id="v-pengembang" hidden>
+      <header><div><div class="kicker">Pengembang</div><h1>Tentang media ini</h1></div></header>
+      <div class="dev-grid">
+        <div class="card">
+          <div class="avatar"><span>DK</span></div>
+          <h3>Profil pengembang</h3>
+          <dl class="kv">
+            <dt>Nama</dt><dd><span class="ph">Isi nama pengembang</span></dd>
+            <dt>Instansi</dt><dd><span class="ph">Isi sekolah / kampus</span></dd>
+            <dt>Email</dt><dd><span class="addr">dunaalikaplale@gmail.com</span></dd>
+            <dt>Tahun</dt><dd>2026</dd>
+          </dl>
+        </div>
+        <div class="card">
+          <h3>Tentang media</h3>
+          <dl class="kv">
+            <dt>Mata pelajaran</dt><dd>Matematika</dd>
+            <dt>Materi</dt><dd>Himpunan</dd>
+            <dt>Jenjang</dt><dd>SMP / MTs, kelas VII</dd>
+            <dt>Isi</dt><dd>13 halaman materi, 2 simulasi, 20 soal evaluasi</dd>
+          </dl>
+        </div>
+        <div class="card">
+          <h3>Tujuan pembelajaran</h3>
+          <ul>
+            <li>Menjelaskan pengertian himpunan dan anggotanya.</li>
+            <li>Menyatakan himpunan dengan tiga cara.</li>
+            <li>Menentukan himpunan bagian dan banyaknya.</li>
+            <li>Menyelesaikan irisan, gabungan, selisih, dan komplemen.</li>
+            <li>Menggambar dan membaca diagram Venn.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Cara menggunakan</h3>
+          <ul>
+            <li>Buka menu Materi, pakai tombol Lanjut dan Kembali.</li>
+            <li>Coba menu Simulasi untuk memindahkan anggota himpunan.</li>
+            <li>Kerjakan Evaluasi, lalu kirim nilai ke email guru.</li>
+          </ul>
+          <p class="note" style="margin-top:12px">Dibuat dengan HTML, CSS, dan JavaScript tanpa aplikasi tambahan.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+"use strict";
+var TEACHER="dunaalikaplale@gmail.com";
+var NS="http://www.w3.org/2000/svg";
+function $(s,r){return (r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+
+/* ================= STAGE (diagram Venn dengan morph) ================= */
+var uid=0;
+function makeStage(svg){
+  var k="s"+(uid++);
+  svg.innerHTML=
+   '<defs>'+
+   '<clipPath id="'+k+'cp"><circle class="geo" data-g="A"/></clipPath>'+
+   '<mask id="'+k+'nb" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="280"><rect width="400" height="280" fill="#fff"/><circle class="geo" data-g="B" fill="#000"/></mask>'+
+   '<mask id="'+k+'na" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="280"><rect width="400" height="280" fill="#fff"/><circle class="geo" data-g="A" fill="#000"/></mask>'+
+   '</defs>'+
+   '<rect id="'+k+'U" class="geo" x="10" y="10" width="380" height="260" rx="12" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 5"/>'+
+   '<rect class="hl" data-h="universe" x="10" y="10" width="380" height="260" rx="12"/>'+
+   '<rect class="hl" data-h="comp" x="10" y="10" width="380" height="260" rx="12" mask="url(#'+k+'na)"/>'+
+   '<rect class="hl" data-h="compB" x="10" y="10" width="380" height="260" rx="12" mask="url(#'+k+'nb)"/>'+
+   '<circle class="hl" data-h="A" data-g="A"/>'+
+   '<circle class="hl" data-h="B" data-g="B"/>'+
+   '<circle class="hl" data-h="inter" data-g="B" clip-path="url(#'+k+'cp)"/>'+
+   '<circle class="hl" data-h="AminusB" data-g="A" mask="url(#'+k+'nb)"/>'+
+   '<circle class="hl" data-h="BminusA" data-g="B" mask="url(#'+k+'na)"/>'+
+   '<circle class="geo" data-g="A" fill="none" stroke="var(--a)" stroke-width="3.5"/>'+
+   '<circle class="geo" data-g="B" fill="none" stroke="var(--b)" stroke-width="3.5"/>'+
+   '<text class="lab" data-l="A" fill="var(--a)">A</text>'+
+   '<text class="lab" data-l="B" fill="var(--b)">B</text>'+
+   '<text class="lab" data-l="S" fill="var(--muted)">S</text>';
+  for(var i=1;i<=10;i++){
+    var t=document.createElementNS(NS,"text");
+    t.setAttribute("class","mem");t.setAttribute("data-n",i);t.textContent=i;
+    t.style.transform="translate(200px,140px)";t.style.opacity="0";
+    svg.appendChild(t);
+  }
+  var U=svg.querySelector("rect.geo");
+  function geo(sel,c){
+    $$(sel,svg).forEach(function(e){
+      e.style.cx=c[0]+"px";e.style.cy=c[1]+"px";e.style.r=c[2]+"px";
+      e.setAttribute("cx",c[0]);e.setAttribute("cy",c[1]);e.setAttribute("r",c[2]);
+    });
+  }
+  function lab(n,p){var e=svg.querySelector('[data-l="'+n+'"]');if(!p){e.style.opacity="0";return}e.style.opacity="1";e.style.transform="translate("+p[0]+"px,"+p[1]+"px)"}
+  var HLREG={none:[],A:["a","ab"],B:["b","ab"],union:["a","ab","b"],inter:["ab"],AminusB:["a"],BminusA:["b"],comp:["b","o"],compB:["a","o"],universe:["a","ab","b","o"]};
+  var HLSHOW={none:[],A:["A"],B:["B"],union:["A","B"],inter:["inter"],AminusB:["AminusB"],BminusA:["BminusA"],comp:["comp"],compB:["compB"],universe:["universe"]};
+  return {
+    set:function(o){
+      geo('[data-g="A"]',o.A);geo('[data-g="B"]',o.B);
+      U.style.opacity=o.U?"1":"0";
+      lab("A",o.lb.a);lab("B",o.lb.b);lab("S",o.U?[26,36]:null);
+      for(var n=1;n<=10;n++){
+        var e=svg.querySelector('.mem[data-n="'+n+'"]'),m=o.mem[n];
+        if(!m){e.style.opacity="0";e.style.transform="translate("+o.A[0]+"px,"+o.A[1]+"px)";continue}
+        e.style.opacity="1";e.style.transform="translate("+m[1]+"px,"+m[2]+"px)";
+        var hot=HLREG[o.hl]||[];
+        e.classList.toggle("dim",o.hl!=="none"&&hot.indexOf(m[0])<0);
+      }
+      var show=HLSHOW[o.hl]||[];
+      $$(".hl",svg).forEach(function(e){e.classList.toggle("show",show.indexOf(e.getAttribute("data-h"))>=0)});
+    }
+  };
+}
+
+var PRE={
+ single:{A:[200,140,95],B:[200,140,0],U:0,lb:{a:[118,56],b:null},
+   mem:{1:["a",160,102],2:["a",205,95],3:["a",245,118],4:["a",155,152],5:["a",200,160],6:["a",245,175]}},
+ overlap:{A:[150,140,80],B:[250,140,80],U:1,lb:{a:[84,66],b:[316,66]},
+   mem:{1:["a",110,120],2:["a",115,165],3:["ab",200,122],4:["ab",200,160],5:["b",290,122],6:["b",285,165],7:["o",50,52],8:["o",350,52],9:["o",50,240],10:["o",350,240]}},
+ disjoint:{A:[115,140,75],B:[285,140,75],U:1,lb:{a:[62,76],b:[338,76]},
+   mem:{1:["a",90,120],2:["a",135,112],3:["a",108,168],4:["b",262,120],5:["b",310,128],6:["b",285,168],7:["o",50,52],8:["o",350,52],9:["o",50,240],10:["o",350,240]}},
+ subset:{A:[200,140,105],B:[170,150,55],U:1,lb:{a:[286,62],b:[116,104]},
+   mem:{1:["ab",150,150],2:["ab",190,165],3:["a",262,120],4:["a",250,180],5:["a",236,92],6:["o",50,52],7:["o",350,52],8:["o",50,240],9:["o",350,240],10:["o",200,258]}}
+};
+
+/* ================= MATERI ================= */
+var SL=[
+{t:"Apa itu himpunan?",tag:"Pengertian",pre:"single",hl:"A",cap:'A = {1, 2, 3, 4, 5, 6}',
+ html:'<p><b>Himpunan</b> adalah kumpulan objek yang batasannya jelas, sehingga kita pasti bisa memutuskan sebuah objek termasuk atau tidak.</p>'+
+ '<div class="cols2"><div><b>Himpunan</b>Kumpulan bilangan prima kurang dari 10. Anggotanya jelas: 2, 3, 5, 7.</div><div><b>Bukan himpunan</b>Kumpulan makanan enak. Enak menurut siapa? Batasannya tidak jelas.</div></div>'+
+ '<div class="box def"><b class="lbl">Ingat</b><p>Himpunan diberi nama dengan huruf kapital (A, B, C), dan anggotanya ditulis di dalam kurung kurawal { }.</p></div>'},
+{t:"Cara menyatakan himpunan",tag:"Notasi",pre:"single",hl:"A",cap:'A = {x | x bilangan asli ≤ 6}',
+ html:'<p>Satu himpunan bisa ditulis dengan tiga cara. Contohnya himpunan bilangan asli yang kurang dari 7:</p>'+
+ '<div class="box def"><b class="lbl">1. Menyebutkan sifat</b><p>A = himpunan bilangan asli kurang dari 7</p></div>'+
+ '<div class="box def"><b class="lbl">2. Mendaftar anggota</b><p class="math">A = {1, 2, 3, 4, 5, 6}</p></div>'+
+ '<div class="box def"><b class="lbl">3. Notasi pembentuk himpunan</b><p class="math">A = {x | x bilangan asli, x &lt; 7}</p><p>Dibaca: A adalah himpunan semua x sedemikian sehingga x bilangan asli kurang dari 7.</p></div>'},
+{t:"Anggota dan banyak anggota",tag:"Notasi",pre:"single",hl:"A",cap:'3 ∈ A     9 ∉ A     n(A) = 6',
+ html:'<p>Objek di dalam himpunan disebut <b>anggota</b>. Dua lambang yang sering dipakai:</p>'+
+ '<div class="cols2"><div><b class="math">∈</b>“anggota dari”<br><span class="math">3 ∈ A</span></div><div><b class="math">∉</b>“bukan anggota dari”<br><span class="math">9 ∉ A</span></div></div>'+
+ '<div class="box key"><b class="lbl">Banyak anggota</b><p>Ditulis <span class="math">n(A)</span>. Untuk A = {1, 2, 3, 4, 5, 6} maka <span class="math">n(A) = 6</span>.</p></div>'+
+ '<div class="box ex"><b class="lbl">Contoh</b><p>Himpunan huruf pada kata “MATEMATIKA” adalah {M, A, T, E, I, K}. Huruf yang sama hanya ditulis sekali, jadi n = 6.</p></div>'},
+{t:"Jenis-jenis himpunan",tag:"Jenis",pre:"overlap",hl:"universe",cap:'Himpunan semesta S = {1, 2, 3, …, 10}',
+ html:'<div class="box def"><b class="lbl">Himpunan kosong (∅)</b><p>Tidak punya anggota. Contoh: bilangan asli kurang dari 1. Ditulis <span class="math">{ }</span> atau <span class="math">∅</span>, dan <span class="math">n(∅) = 0</span>.</p></div>'+
+ '<div class="box def"><b class="lbl">Himpunan semesta (S)</b><p>Himpunan yang memuat semua anggota yang sedang dibicarakan. Pada diagram Venn digambar sebagai persegi panjang.</p></div>'+
+ '<div class="cols2"><div><b>Berhingga</b>Anggotanya bisa dihitung: {1, 2, 3}.</div><div><b>Tak berhingga</b>Anggotanya tak bisa dihabiskan: {1, 2, 3, …}.</div></div>'},
+{t:"Himpunan bagian",tag:"Hubungan",pre:"subset",hl:"B",cap:'B ⊂ A     B = {1, 2}     A = {1, 2, 3, 4, 5}',
+ html:'<div class="box def"><b class="lbl">Definisi</b><p>A disebut <b>himpunan bagian</b> dari B jika setiap anggota A juga menjadi anggota B. Ditulis <span class="math">A ⊂ B</span>.</p></div>'+
+ '<p>Pada gambar, lingkaran B berada di dalam lingkaran A. Semua anggota B (yaitu 1 dan 2) ada juga di A, jadi <span class="math">B ⊂ A</span>.</p>'+
+ '<div class="box key"><b class="lbl">Dua fakta penting</b><p>1. Himpunan kosong adalah himpunan bagian dari semua himpunan.<br>2. Setiap himpunan adalah himpunan bagian dari dirinya sendiri.</p></div>'},
+{t:"Banyak himpunan bagian",tag:"Rumus",pre:"subset",hl:"B",cap:'Banyaknya himpunan bagian = 2ⁿ',
+ html:'<p>Jika suatu himpunan punya <b>n</b> anggota, banyak himpunan bagiannya adalah <span class="math">2<sup>n</sup></span>.</p>'+
+ '<div class="tblwrap"><table class="t"><tr><th>n(A)</th><th>Contoh A</th><th>2<sup>n</sup></th></tr><tr><td>0</td><td class="math">∅</td><td>1</td></tr><tr><td>1</td><td class="math">{a}</td><td>2</td></tr><tr><td>2</td><td class="math">{a, b}</td><td>4</td></tr><tr><td>3</td><td class="math">{a, b, c}</td><td>8</td></tr><tr><td>4</td><td class="math">{a, b, c, d}</td><td>16</td></tr></table></div>'+
+ '<div class="box ex"><b class="lbl">Contoh</b><p>Himpunan bagian dari {a, b}: ∅, {a}, {b}, {a, b}. Jadi ada 2² = 4.</p></div>'},
+{t:"Hubungan dua himpunan",tag:"Hubungan",pre:"disjoint",hl:"none",cap:'A = {1, 2, 3}     B = {4, 5, 6}     saling lepas',
+ html:'<div class="cols2"><div><b>Sama (A = B)</b>Anggotanya persis sama.</div><div><b>Ekuivalen (A ~ B)</b>Banyak anggotanya sama, isinya boleh beda.</div><div><b>Berpotongan</b>Punya sedikitnya satu anggota yang sama.</div><div><b>Saling lepas</b>Tidak punya anggota yang sama.</div></div>'+
+ '<div class="box ex"><b class="lbl">Pada gambar</b><p>A = {1, 2, 3} dan B = {4, 5, 6} tidak berbagi anggota, jadi keduanya <b>saling lepas</b>. Karena n(A) = n(B) = 3, keduanya juga <b>ekuivalen</b>.</p></div>'},
+{t:"Irisan (A ∩ B)",tag:"Operasi",pre:"overlap",hl:"inter",cap:'A ∩ B = {3, 4}',
+ html:'<div class="box def"><b class="lbl">Definisi</b><p><b>Irisan</b> A dan B adalah himpunan semua anggota yang ada di A <b>dan sekaligus</b> di B.</p></div>'+
+ '<p class="math">A = {1, 2, 3, 4}<br>B = {3, 4, 5, 6}<br>A ∩ B = {3, 4}</p>'+
+ '<p>Pada diagram Venn, irisan adalah daerah arsiran tempat dua lingkaran saling menumpuk.</p>'},
+{t:"Gabungan (A ∪ B)",tag:"Operasi",pre:"overlap",hl:"union",cap:'A ∪ B = {1, 2, 3, 4, 5, 6}',
+ html:'<div class="box def"><b class="lbl">Definisi</b><p><b>Gabungan</b> A dan B adalah himpunan semua anggota yang ada di A <b>atau</b> di B (atau keduanya).</p></div>'+
+ '<p class="math">A = {1, 2, 3, 4}<br>B = {3, 4, 5, 6}<br>A ∪ B = {1, 2, 3, 4, 5, 6}</p>'+
+ '<div class="box key"><b class="lbl">Perhatikan</b><p>Anggota yang sama (3 dan 4) hanya ditulis satu kali.</p></div>'},
+{t:"Selisih (A − B)",tag:"Operasi",pre:"overlap",hl:"AminusB",cap:'A − B = {1, 2}',
+ html:'<div class="box def"><b class="lbl">Definisi</b><p><b>Selisih</b> A dan B adalah himpunan anggota A yang <b>bukan</b> anggota B.</p></div>'+
+ '<p class="math">A − B = {1, 2}<br>B − A = {5, 6}</p>'+
+ '<div class="box key"><b class="lbl">Perhatikan</b><p>A − B tidak sama dengan B − A. Urutannya menentukan hasil.</p></div>'},
+{t:"Komplemen (Aᶜ)",tag:"Operasi",pre:"overlap",hl:"comp",cap:'Aᶜ = {5, 6, 7, 8, 9, 10}',
+ html:'<div class="box def"><b class="lbl">Definisi</b><p><b>Komplemen</b> A adalah semua anggota semesta S yang <b>bukan</b> anggota A. Ditulis <span class="math">A<sup>c</sup></span> atau <span class="math">A′</span>.</p></div>'+
+ '<p class="math">S = {1, 2, 3, …, 10}<br>A = {1, 2, 3, 4}<br>A<sup>c</sup> = {5, 6, 7, 8, 9, 10}</p>'+
+ '<p>Pada diagram, komplemen A adalah seluruh daerah di dalam persegi panjang yang berada di luar lingkaran A.</p>'},
+{t:"Menghitung dengan diagram Venn",tag:"Rumus",pre:"overlap",hl:"union",cap:'n(A ∪ B) = n(A) + n(B) − n(A ∩ B)',
+ html:'<div class="box key"><b class="lbl">Rumus</b><p class="math">n(A ∪ B) = n(A) + n(B) − n(A ∩ B)</p></div>'+
+ '<p>Irisan terhitung dua kali saat n(A) dan n(B) dijumlahkan, karena itu dikurangi satu kali.</p>'+
+ '<div class="box ex"><b class="lbl">Contoh soal</b><p>Di kelas 30 siswa, 18 suka sepak bola, 15 suka basket, dan 5 tidak suka keduanya. Berapa yang suka keduanya?</p><p class="math">25 = 18 + 15 − n(A ∩ B)<br>n(A ∩ B) = 33 − 25 = 8 siswa</p></div>'},
+{t:"Rangkuman",tag:"Penutup",pre:"overlap",hl:"none",cap:'Siap mencoba simulasi dan evaluasi',
+ html:'<div class="tblwrap"><table class="t"><tr><th>Operasi</th><th>Lambang</th><th>Arti</th></tr>'+
+ '<tr><td>Irisan</td><td class="math">A ∩ B</td><td>di A dan di B</td></tr><tr><td>Gabungan</td><td class="math">A ∪ B</td><td>di A atau di B</td></tr><tr><td>Selisih</td><td class="math">A − B</td><td>di A, tidak di B</td></tr><tr><td>Komplemen</td><td class="math">A<sup>c</sup></td><td>di S, tidak di A</td></tr><tr><td>Himpunan bagian</td><td class="math">A ⊂ B</td><td>semua anggota A ada di B</td></tr></table></div>'+
+ '<p>Lanjutkan ke menu <b>Simulasi</b> untuk memindahkan anggota sendiri, lalu uji pemahamanmu di menu <b>Evaluasi</b>.</p>'}
+];
+var stageM=makeStage($("#stageSvg"));
+var cur=0;
+function splitWords(root){
+  var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),nodes=[],i=0;
+  while(w.nextNode())nodes.push(w.currentNode);
+  nodes.forEach(function(n){
+    if(!n.nodeValue.trim())return;
+    var f=document.createDocumentFragment();
+    n.nodeValue.split(/(\s+)/).forEach(function(p){
+      if(!p)return;
+      if(/^\s+$/.test(p)){f.appendChild(document.createTextNode(p));return}
+      var s=document.createElement("span");s.className="w";s.textContent=p;
+      s.style.animationDelay=Math.min(i*26,1300)+"ms";i++;f.appendChild(s);
+    });
+    n.parentNode.replaceChild(f,n);
+  });
+}
+function renderSlide(){
+  var s=SL[cur],body=$("#slideBody");
+  $("#slideTag").textContent=s.tag;
+  $("#slideTitle").innerHTML=s.t;
+  body.innerHTML=s.html;
+  splitWords($("#slideTitle"));splitWords(body);
+  $("#cap").innerHTML=s.cap;
+  $("#count").textContent=(cur+1)+" / "+SL.length;
+  $("#btnBack").disabled=cur===0;
+  var last=cur===SL.length-1;
+  $("#btnNext").textContent=last?"Ke Simulasi →":"Lanjut →";
+  $$(".dot").forEach(function(d,i){d.setAttribute("aria-current",i===cur?"true":"false")});
+  var p=PRE[s.pre];
+  stageM.set({A:p.A,B:p.B,U:p.U,lb:p.lb,mem:p.mem,hl:s.hl});
+}
+var busy=false;
+function go(n){
+  if(n<0||n>=SL.length||busy)return;
+  busy=true;cur=n;
+  var body=$("#slideBody");body.classList.add("out");
+  setTimeout(function(){renderSlide();body.classList.remove("out");busy=false},190);
+}
+(function(){
+  var d=$("#dots");
+  SL.forEach(function(s,i){var b=document.createElement("button");b.className="dot";b.setAttribute("aria-label","Halaman "+(i+1)+": "+s.t.replace(/<[^>]+>/g,""));b.onclick=function(){go(i)};d.appendChild(b)});
+  $("#btnBack").onclick=function(){go(cur-1)};
+  $("#btnNext").onclick=function(){if(cur===SL.length-1)show("simulasi");else go(cur+1)};
+})();
+document.addEventListener("keydown",function(e){
+  if(currentView!=="materi"||/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;
+  if(e.key==="ArrowRight")go(cur+1);else if(e.key==="ArrowLeft")go(cur-1);
+});
+
+/* ================= SIMULASI ================= */
+var stageS=makeStage($("#simSvg"));
+var simState={1:"a",2:"a",3:"ab",4:"ab",5:"b",6:"b",7:"o",8:"o",9:"o",10:"o"};
+var simOp="inter";
+var OPS=[["inter","A ∩ B",["ab"],"inter"],["union","A ∪ B",["a","ab","b"],"union"],["amb","A − B",["a"],"AminusB"],["bma","B − A",["b"],"BminusA"],["comp","Aᶜ",["b","o"],"comp"],["compb","Bᶜ",["a","o"],"compB"]];
+var NEXTR={o:"a",a:"b",b:"ab",ab:"o"};
+var RLAB={o:"luar",a:"A",b:"B",ab:"A∩B"};
+function slots(){
+  var out={},cnt={a:0,ab:0,b:0,o:0},list={a:[],ab:[],b:[],o:[]},n;
+  for(n=1;n<=10;n++)list[simState[n]].push(n);
+  function place(r,cx,cy,cols,dx,dy){
+    var arr=list[r],rows=Math.ceil(arr.length/cols);
+    arr.forEach(function(num,i){
+      var c=i%cols,rw=Math.floor(i/cols),inRow=Math.min(cols,arr.length-rw*cols);
+      out[num]=[r,cx+(c-(inRow-1)/2)*dx,cy+(rw-(rows-1)/2)*dy];
+    });
+  }
+  place("a",108,140,2,30,26);place("ab",200,140,1,0,26);place("b",292,140,2,30,26);
+  var o=list.o;o.forEach(function(num,i){out[num]=["o",200+(i-(o.length-1)/2)*34,252]});
+  return out;
+}
+function setStr(arr){return "{"+arr.join(", ")+"}"}
+function simRender(){
+  var op=OPS.filter(function(o){return o[0]===simOp})[0];
+  stageS.set({A:[150,140,80],B:[250,140,80],U:1,lb:{a:[84,66],b:[316,66]},mem:slots(),hl:op[3]});
+  $$(".chip").forEach(function(c){var n=c.getAttribute("data-n");c.setAttribute("data-r",simState[n]);c.querySelector("small").textContent=RLAB[simState[n]]});
+  $$(".op").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-op")===simOp?"true":"false")});
+  var res=[],A=[],B=[],AB=[];
+  for(var n=1;n<=10;n++){var r=simState[n];if(op[2].indexOf(r)>=0)res.push(n);if(r==="a"||r==="ab")A.push(n);if(r==="b"||r==="ab")B.push(n);if(r==="ab")AB.push(n)}
+  $("#resSet").textContent=op[1]+" = "+(res.length?setStr(res):"{ }  (himpunan kosong)");
+  var t="n("+op[1]+") = "+res.length+"   |   n(A) = "+A.length+", n(B) = "+B.length+", n(A∩B) = "+AB.length;
+  var uni=A.length+B.length-AB.length;
+  t+="\nn(A∪B) = "+A.length+" + "+B.length+" − "+AB.length+" = "+uni;
+  $("#resN").innerHTML=esc(t).replace(/\n/g,"<br>");
+  $("#simCap").textContent="A = "+setStr(A)+"   B = "+setStr(B);
+}
+(function(){
+  var c=$("#chips");
+  for(var n=1;n<=10;n++){(function(n){var b=document.createElement("button");b.className="chip";b.setAttribute("data-n",n);b.innerHTML=n+"<small></small>";b.setAttribute("aria-label","Angka "+n+", ketuk untuk memindahkan");b.onclick=function(){simState[n]=NEXTR[simState[n]];simRender()};c.appendChild(b)})(n)}
+  var o=$("#ops");
+  OPS.forEach(function(x){var b=document.createElement("button");b.className="op";b.setAttribute("data-op",x[0]);b.textContent=x[1];b.onclick=function(){simOp=x[0];simRender()};o.appendChild(b)});
+  $$(".tab").forEach(function(t){t.onclick=function(){
+    $$(".tab").forEach(function(x){x.setAttribute("aria-selected",x===t?"true":"false")});
+    $("#sim-venn").hidden=t.dataset.tab!=="venn";$("#sim-sub").hidden=t.dataset.tab!=="sub";
+  }});
+})();
+/* himpunan bagian */
+var LET=["a","b","c","d","e"],pSel={a:1,b:1,c:1};
+function subRender(){
+  var els=LET.filter(function(l){return pSel[l]});
+  $$(".letter").forEach(function(b){b.setAttribute("aria-pressed",pSel[b.dataset.l]?"true":"false")});
+  $("#pSet").textContent="P = "+(els.length?setStr(els):"{ }");
+  $("#pFormula").textContent="2^"+els.length+" = "+Math.pow(2,els.length);
+  $("#pFormula").innerHTML="2<sup>"+els.length+"</sup> = "+Math.pow(2,els.length);
+  $("#pProper").textContent="Himpunan bagian sejati: "+(Math.pow(2,els.length)-1)+" (semua kecuali P sendiri)";
+  var g=$("#subGroups");g.innerHTML="";
+  var groups={};
+  for(var m=0;m<Math.pow(2,els.length);m++){
+    var s=[];for(var i=0;i<els.length;i++)if(m&(1<<i))s.push(els[i]);
+    (groups[s.length]=groups[s.length]||[]).push(s);
+  }
+  Object.keys(groups).forEach(function(k){
+    var row=document.createElement("div");row.className="sub-g";
+    row.innerHTML='<b>'+(k==="0"?"Kosong":k+" anggota")+' ('+groups[k].length+')</b><div class="sub-list"></div>';
+    var L=row.querySelector(".sub-list");
+    groups[k].forEach(function(s,i){var e=document.createElement("span");e.className="sub";e.style.animationDelay=(i*25)+"ms";e.textContent=s.length?setStr(s):"∅";L.appendChild(e)});
+    g.appendChild(row);
+  });
+}
+(function(){
+  var L=$("#letters");
+  LET.forEach(function(l){var b=document.createElement("button");b.className="letter";b.dataset.l=l;b.textContent=l;b.onclick=function(){pSel[l]=pSel[l]?0:1;subRender()};L.appendChild(b)});
+})();
+
+/* ================= EVALUASI ================= */
+var Q=[
+["Manakah yang merupakan himpunan?",["Kumpulan siswa pandai","Kumpulan bilangan prima kurang dari 10","Kumpulan bunga indah","Kumpulan makanan enak"],1,"Himpunan harus punya batasan jelas. Bilangan prima kurang dari 10 adalah 2, 3, 5, 7."],
+["Himpunan A = {x | x bilangan asli kurang dari 6}. Anggota A adalah ...",["{0, 1, 2, 3, 4, 5}","{1, 2, 3, 4, 5, 6}","{1, 2, 3, 4, 5}","{2, 3, 4, 5}"],2,"Bilangan asli dimulai dari 1, dan harus kurang dari 6, jadi 1 sampai 5."],
+["Banyak anggota himpunan huruf vokal A = {a, i, u, e, o} ditulis ...",["n(A) = 4","n(A) = 5","n(A) = 6","n(A) = 26"],1,"Ada 5 huruf vokal, jadi n(A) = 5."],
+["Himpunan kosong ditunjukkan oleh ...",["{0}","{x | x bilangan asli kurang dari 1}","{1}","{∅, 0}"],1,"Tidak ada bilangan asli yang kurang dari 1, sehingga himpunannya kosong. {0} punya satu anggota, yaitu 0."],
+["Banyak himpunan bagian dari himpunan yang punya 4 anggota adalah ...",["8","12","16","32"],2,"2⁴ = 16."],
+["Jika A = {1, 2, 3} dan B = {3, 4, 5}, maka A ∩ B = ...",["{1, 2, 3, 4, 5}","{3}","{1, 2}","{4, 5}"],1,"Anggota yang sama pada A dan B hanya 3."],
+["Jika A = {1, 2, 3} dan B = {3, 4, 5}, maka A ∪ B = ...",["{3}","{1, 2, 4, 5}","{1, 2, 3, 3, 4, 5}","{1, 2, 3, 4, 5}"],3,"Gabungan memuat semua anggota A atau B, anggota sama ditulis sekali."],
+["Jika A = {1, 2, 3} dan B = {3, 4, 5}, maka A − B = ...",["{1, 2}","{4, 5}","{3}","{1, 2, 4, 5}"],0,"A − B adalah anggota A yang bukan anggota B, yaitu 1 dan 2."],
+["S = {1, 2, 3, …, 10} dan A = {2, 4, 6, 8, 10}. Komplemen A adalah ...",["{2, 4, 6, 8, 10}","{1, 3, 5, 7, 9}","{1, 2, 3, 4, 5}","{3, 6, 9}"],1,"Komplemen A berisi anggota S yang bukan anggota A, yaitu bilangan ganjil."],
+["Jika A = {1, 2, 3}, pernyataan yang benar adalah ...",["3 ∉ A","4 ∈ A","3 ∈ A","1 ∉ A"],2,"3 adalah anggota A, ditulis 3 ∈ A."],
+["Pasangan himpunan yang saling lepas adalah ...",["A = {1, 2} dan B = {2, 3}","A = {1, 2} dan B = {3, 4}","A = {a, b} dan B = {b, c}","A = {5} dan B = {5, 6}"],1,"Saling lepas berarti tidak punya anggota yang sama."],
+["Diketahui n(A) = 15, n(B) = 12, dan n(A ∩ B) = 5. Nilai n(A ∪ B) adalah ...",["32","27","22","17"],2,"15 + 12 − 5 = 22."],
+["Dari 30 siswa, 18 suka sepak bola, 15 suka basket, dan 5 tidak suka keduanya. Banyak siswa yang suka keduanya adalah ...",["6","8","10","12"],1,"Yang suka minimal satu = 30 − 5 = 25. Maka 25 = 18 + 15 − x, sehingga x = 8."],
+["{x | 1 < x ≤ 5, x bilangan bulat} jika ditulis dengan mendaftar anggota adalah ...",["{1, 2, 3, 4, 5}","{2, 3, 4}","{1, 2, 3, 4}","{2, 3, 4, 5}"],3,"x lebih dari 1 dan boleh sama dengan 5, jadi 2, 3, 4, 5."],
+["Yang bukan himpunan bagian dari {a, b, c} adalah ...",["{a, b}","{c}","{a, d}","∅"],2,"d bukan anggota {a, b, c}, sehingga {a, d} bukan himpunan bagiannya."],
+["Pernyataan yang benar tentang himpunan kosong adalah ...",["Himpunan kosong punya satu anggota, yaitu 0","Himpunan kosong adalah himpunan bagian dari setiap himpunan","Himpunan kosong bukan himpunan bagian dari A","n(∅) = 1"],1,"∅ adalah himpunan bagian dari semua himpunan, dan n(∅) = 0."],
+["A = {a, b, c} dan B = {1, 2, 3}. Hubungan A dan B adalah ...",["A = B","Ekuivalen","Berpotongan","B ⊂ A"],1,"Isinya berbeda tetapi banyak anggotanya sama (3), sehingga ekuivalen."],
+["Diketahui n(S) = 40 dan n(A) = 25. Nilai n(Aᶜ) adalah ...",["15","25","40","65"],0,"n(Aᶜ) = n(S) − n(A) = 40 − 25 = 15."],
+["Banyak himpunan bagian dari himpunan faktor prima 30 adalah ...",["3","6","8","16"],2,"Faktor prima 30 adalah 2, 3, 5 (ada 3 anggota), sehingga 2³ = 8."]
+];
+var TOTAL=Q.length,DUR=30*60;
+var ev={name:"",cls:"",ans:[],i:0,end:0,timer:null,started:0,done:false};
+function fmt(s){s=Math.max(0,s);return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+function evShow(w){$("#ev-form").hidden=w!=="form";$("#ev-quiz").hidden=w!=="quiz";$("#ev-result").hidden=w!=="result"}
+$("#startForm").addEventListener("submit",function(e){
+  e.preventDefault();
+  var n=$("#nama").value.trim(),k=$("#kelas").value.trim();
+  if(!n||!k){$("#formErr").textContent="Nama dan kelas wajib diisi sebelum mulai.";(n?$("#kelas"):$("#nama")).focus();return}
+  $("#formErr").textContent="";
+  ev.name=n;ev.cls=k;ev.ans=new Array(TOTAL).fill(-1);ev.i=0;ev.done=false;
+  ev.started=Date.now();ev.end=ev.started+DUR*1000;
+  $("#whoName").textContent=n;$("#whoClass").textContent="Kelas "+k;
+  evShow("quiz");qRender();tick();
+  clearInterval(ev.timer);ev.timer=setInterval(tick,500);
+});
+function tick(){
+  var left=Math.ceil((ev.end-Date.now())/1000);
+  var t=$("#timer");t.textContent=fmt(left);t.classList.toggle("low",left<=300);
+  if(left<=0&&!ev.done)finish(true);
+}
+function qRender(){
+  var q=Q[ev.i],box=$("#qBox");
+  var h='<div class="qno">Soal '+(ev.i+1)+' dari '+TOTAL+'</div><div class="qtext">'+esc(q[0])+'</div><div class="opts" role="radiogroup" aria-label="Pilihan jawaban">';
+  q[1].forEach(function(o,j){h+='<button class="opt" role="radio" aria-checked="'+(ev.ans[ev.i]===j)+'" data-j="'+j+'"><span class="l">'+"ABCD"[j]+'</span><span>'+esc(o)+'</span></button>'});
+  box.innerHTML=h+'</div>';
+  $$(".opt",box).forEach(function(b){b.onclick=function(){ev.ans[ev.i]=+b.dataset.j;qRender()}});
+  $("#qPrev").disabled=ev.i===0;$("#qNext").disabled=ev.i===TOTAL-1;
+  var done=ev.ans.filter(function(a){return a>=0}).length;
+  $("#bar").style.width=(done/TOTAL*100)+"%";
+  var g=$("#grid20");g.innerHTML="";
+  for(var i=0;i<TOTAL;i++){(function(i){var b=document.createElement("button");b.className="gq"+(ev.ans[i]>=0?" done":"")+(i===ev.i?" cur":"");b.textContent=i+1;b.setAttribute("aria-label","Soal "+(i+1)+(ev.ans[i]>=0?", sudah dijawab":", belum dijawab"));b.onclick=function(){ev.i=i;qRender()};g.appendChild(b)})(i)}
+  $("#confirmBox").hidden=true;
+}
+$("#qPrev").onclick=function(){if(ev.i>0){ev.i--;qRender()}};
+$("#qNext").onclick=function(){if(ev.i<TOTAL-1){ev.i++;qRender()}};
+$("#qFinish").onclick=function(){
+  var un=ev.ans.filter(function(a){return a<0}).length;
+  if(un===0){finish(false);return}
+  $("#confirmMsg").textContent="Masih ada "+un+" soal yang belum dijawab. Kumpulkan sekarang?";
+  $("#confirmBox").hidden=false;
+};
+$("#confirmYes").onclick=function(){finish(false)};
+$("#confirmNo").onclick=function(){$("#confirmBox").hidden=true};
+var lastMail="";
+function finish(auto){
+  if(ev.done)return;ev.done=true;clearInterval(ev.timer);
+  var used=Math.min(DUR,Math.round((Date.now()-ev.started)/1000));
+  var ok=0,blank=0;
+  ev.ans.forEach(function(a,i){if(a<0)blank++;else if(a===Q[i][2])ok++});
+  var score=ok*5;
+  var tgl=new Date().toLocaleString("id-ID",{dateStyle:"full",timeStyle:"short"});
+  evShow("result");
+  $("#resWho").textContent=ev.name+" · Kelas "+ev.cls+(auto?" · waktu habis":"");
+  var s=$("#resScore");s.textContent=score;s.className="n "+(score>=75?"good":score>=60?"mid":"low");
+  $("#resStats").innerHTML='<div><b>'+ok+'</b><span>Benar</span></div><div><b>'+(TOTAL-ok-blank)+'</b><span>Salah</span></div><div><b>'+blank+'</b><span>Kosong</span></div><div><b>'+fmt(used)+'</b><span>Waktu dipakai</span></div>';
+  lastMail="Nilai Evaluasi Himpunan\n\nNama   : "+ev.name+"\nKelas  : "+ev.cls+"\nNilai  : "+score+" / 100\nBenar  : "+ok+" dari "+TOTAL+" soal\nSalah  : "+(TOTAL-ok-blank)+"\nKosong : "+blank+"\nWaktu  : "+fmt(used)+"\nTanggal: "+tgl+"\n";
+  $("#mailText").value=lastMail;
+  $("#mailLink").href="mailto:"+TEACHER+"?subject="+encodeURIComponent("Nilai Evaluasi Himpunan - "+ev.name+" ("+ev.cls+")")+"&body="+encodeURIComponent(lastMail);
+  $("#copyNote").textContent="";
+  var rv=$("#review");rv.innerHTML="";
+  Q.forEach(function(q,i){
+    var a=ev.ans[i],good=a===q[2];
+    var d=document.createElement("div");d.className="rv";
+    var h='<div class="st '+(good?"ok":"no")+'">Soal '+(i+1)+' · '+(a<0?"Tidak dijawab":good?"Benar":"Salah")+'</div><p><b>'+esc(q[0])+'</b></p><div class="opts">';
+    q[1].forEach(function(o,j){h+='<div class="opt'+(j===q[2]?" right":(j===a?" wrong":""))+'"><span class="l">'+"ABCD"[j]+'</span><span>'+esc(o)+'</span></div>'});
+    d.innerHTML=h+'</div><p class="note" style="margin-top:8px">'+esc(q[3])+'</p>';rv.appendChild(d);
+  });
+  saveResult({nama:ev.name,kelas:ev.cls,nilai:score,benar:ok,salah:TOTAL-ok-blank,kosong:blank,waktu:used,tanggal:Date.now()});
+  window.scrollTo(0,0);$("#main").scrollTop=0;
+}
+$("#copyMail").onclick=function(){
+  var ta=$("#mailText"),note=$("#copyNote");
+  function fb(){ta.focus();ta.select();note.textContent="Teks terpilih, tekan salin."}
+  try{navigator.clipboard.writeText(lastMail).then(function(){note.textContent="Tersalin."},fb)}catch(e){fb()}
+};
+$("#retry").onclick=function(){evShow("form");$("#nama").value="";$("#kelas").value=""};
+
+/* penyimpanan hasil (opsional) */
+var dbRef=null,userRef=null;
+function saveResult(r){
+  var st=$("#saveStatus");
+  st.textContent="Menyimpan hasil ke data kelas...";
+  if(!dbRef||!userRef){st.textContent="Hasil belum bisa disimpan otomatis (perlu membuka dengan akun). Gunakan tombol email di bawah.";return}
+  userRef.id().then(function(id){
+    if(!id)throw new Error("noid");
+    return dbRef.doc("hasil/"+id).set(r);
+  }).then(function(){st.textContent="Hasil tersimpan di data kelas dan dapat dilihat guru."},
+          function(){st.textContent="Hasil belum bisa disimpan otomatis. Gunakan tombol email di bawah."});
+}
+function rekapInit(){
+  if(!dbRef||!userRef||!userRef.canEdit||!userRef.canEdit())return;
+  $("#rekapCard").hidden=false;
+  var timeout=setTimeout(function(){$("#rekap").textContent="Data belum dapat dijangkau."},10000);
+  dbRef.collection("hasil").onSnapshot(function(snap){
+    clearTimeout(timeout);
+    var rows=snap.docs.map(function(d){return d.data()}).sort(function(a,b){return (b.tanggal||0)-(a.tanggal||0)});
+    if(!rows.length){$("#rekap").textContent="Belum ada hasil yang masuk.";return}
+    var h='<table class="t"><tr><th>Nama</th><th>Kelas</th><th>Nilai</th><th>Benar</th><th>Waktu</th></tr>';
+    rows.forEach(function(r){h+='<tr><td style="text-align:left">'+esc(r.nama||"")+'</td><td>'+esc(r.kelas||"")+'</td><td><b>'+esc(r.nilai)+'</b></td><td>'+esc(r.benar)+'</td><td>'+fmt(+r.waktu||0)+'</td></tr>'});
+    $("#rekap").innerHTML=h+'</table>';
+  },function(){clearTimeout(timeout);$("#rekap").textContent="Rekap tidak dapat dibuka."});
+}
+try{
+  if(window.claude&&window.claude.use){
+    Promise.all([window.claude.use("db"),window.claude.use("user")]).then(function(r){dbRef=r[0];userRef=r[1];rekapInit()}).catch(function(){});
+  }
+}catch(e){}
+
+/* ================= NAVIGASI ================= */
+var currentView="materi",VIEWS=["materi","simulasi","evaluasi","pengembang"];
+function show(v){
+  if(VIEWS.indexOf(v)<0)v="materi";
+  currentView=v;
+  VIEWS.forEach(function(x){$("#v-"+x).hidden=x!==v});
+  $$(".nav").forEach(function(b){if(b.dataset.view===v)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
+  if(location.hash!=="#"+v){try{location.hash=v}catch(e){}}
+  $("#main").scrollTop=0;
+  if(v==="materi")renderSlide();
+  if(v==="simulasi"){simRender();subRender()}
+}
+$$(".nav").forEach(function(b){b.onclick=function(){show(b.dataset.view)}});
+window.addEventListener("hashchange",function(){var h=location.hash.slice(1);if(VIEWS.indexOf(h)>=0&&h!==currentView)show(h)});
+show(VIEWS.indexOf(location.hash.slice(1))>=0?location.hash.slice(1):"materi");
+})();
+</script>
+
+</body></html>
